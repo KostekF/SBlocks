@@ -147,7 +147,8 @@ void generateCombinedAffineFunctions(vector<vector<bool>> & combinedAffineFunc, 
 
 void calculateNonlinearity(vector<vector<bool>> & sblockFunctions, vector<vector<bool>> & combinedAffineFunc)
 {
-
+	//cout << "Sblock functions " << sblockFunctions[0].size() << "\n";
+	//cout << "Combined affine functions: " << combinedAffineFunc[0].size() << "\n";
 	int nonLinearity = -1;
 	int minNonLinearity = 1000;
 	//XOR 8 basic functions with affinic functions so 8x255=2040 XORs.
@@ -175,6 +176,22 @@ void calculateNonlinearity(vector<vector<bool>> & sblockFunctions, vector<vector
 		cout << endl << endl;
 		cout << "Non-linearity of SBLOCK is equal to: " << minNonLinearity << endl;
 	}
+}
+
+double calculateSAC(const vector<bool> & sblockFunction)
+{
+	int wynik = 0;
+	for (int i = 0; i < 8; ++i)
+	{
+		for (int j = 0; j < sblockFunction.size(); ++j)
+		{
+			if (sblockFunction[j] != sblockFunction[j ^ (1 << i)])
+				wynik++;
+		}
+
+	}
+	//cout << 100.0*wynik / (256.0 * 8.0) << "\n";
+	return 100.0*wynik / (256.0 * 8.0);
 }
 int main()
 {
@@ -209,11 +226,19 @@ int main()
 	
 	
 	calculateNonlinearity(sblockFunctions, combinedAffineFunc);
-	
 
-
-	
-
+	cout <<"\nObliczanie SAC dla kazdej z funkcji:\n";
+	//calculate SAC for 8 functions and it's mean
+	double SAC = 0.0;
+	double mean = 0.0;
+	for (int i = 0; i < 8; ++i)
+	{
+		SAC = calculateSAC(sblockFunctions[i]);
+		cout << SAC << "\n";
+		mean += SAC;
+	}
+	mean /= 8;
+	cout << "Sredni SAC: " << mean << "\n";
 	system("pause");
 
 	return 0;
